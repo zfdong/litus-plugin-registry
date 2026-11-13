@@ -1,0 +1,51 @@
+# Publishes the registry to https://litus.tellusai.com/api/plugins/: builds it into the website
+# repository (zfdong/tellus, folder litus/), whose push Cloudflare Pages deploys.
+#
+# Needs the secret TELLUS_DEPLOY_TOKEN: a fine-grained personal access token with access to
+# zfdong/tellus only, and Contents: Read and write. It runs only for main, never for pull requests.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check out the website
+        uses: actions/checkout@v4
+        with:
+          repository: zfdong/tellus
+          token: ${{ secrets.TELLUS_DEPLOY_TOKEN }}
+          path: tellus
+      - name: Build the registry into the website
+        run: python scripts/build.py --site tellus/litus
+      - name: Publish
+        working-directory: tellus
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          git add litus/api/plugins
+          if git diff --cached --quiet; then
+            echo "The published registry is already up to date."
+            exit 0
+          fi
+          git config user.name "litus-plugin-registry"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Litus plugin registry: deploy zfdong/litus-plugin-registry@${SHA:0:7}"
+          git push

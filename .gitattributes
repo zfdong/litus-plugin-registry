@@ -1,0 +1,6 @@
+# Entries and the blocklist are published byte-for-byte: keep LF endings.
+*.json text eol=lf
+*.py text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.litusplugin binary
