@@ -182,6 +182,26 @@ class BuildTests(unittest.TestCase):
             with self.assertRaisesRegex(build.BuildError, "not found"):
                 build.run(None, None, None)
 
+    def test_package_too_large_for_litus(self):
+        data = self.add(MANIFEST)
+        with mock.patch.object(build, "MAX_PACKAGE_BYTES", len(data) - 1):
+            with self.assertRaisesRegex(build.BuildError, "at most"):
+                build.run(None, None, None)
+
+    def test_site_too_large_for_github_pages(self):
+        data = self.add(MANIFEST)
+        (self.site / "images").mkdir(parents=True)
+        (self.site / "images/big.png").write_bytes(b"x" * 1000)
+        (self.site / ".git").mkdir()
+        (self.site / ".git/pack").write_bytes(b"x" * 10_000)  # not published: not counted
+        limit = 1000 + len(data) + 2000  # the page, the package and room for registry.json
+        with mock.patch.object(build, "MAX_SITE_BYTES", limit):
+            build.run(None, self.site, None)
+        self.add(dict(MANIFEST, version="1.1.0"))
+        with mock.patch.object(build, "MAX_SITE_BYTES", limit):
+            with self.assertRaisesRegex(build.BuildError, "GitHub Pages"):
+                build.run(None, self.site, None)
+
     def test_blocklist_rules(self):
         good = {"blocked": [{"id": "x", "reason": "Security issue"},
                             {"id": "y", "sha256": "d" * 64, "reason": "Broken"}]}

@@ -1,0 +1,96 @@
+/* Litus site styles. Colours and type follow tellusai.com (assets/css/tellus.css). */
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700&display=swap");
+
+:root {
+	--ink: #16232a;
+	--muted: #53636a;
+	--soft: #f3f7f5;
+	--line: #dbe6e1;
+	--green: #197c68;
+	--green-dark: #126755;
+	--footer: #0c171c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+	margin: 0;
+	background: #fbfcfb;
+	color: var(--muted);
+	font-family: "Source Sans Pro", Helvetica, sans-serif;
+	font-size: 16px;
+	font-weight: 300;
+	line-height: 1.62;
+}
+
+a { color: inherit; }
+a:hover { color: var(--green); }
+
+h1, h2 { color: var(--ink); font-weight: 600; margin: 0 0 0.4em; }
+h1 { font-size: clamp(2.45rem, 4.2vw, 4.35rem); line-height: 1.03; }
+h2 { font-size: clamp(1.55rem, 2.35vw, 2.45rem); line-height: 1.14; }
+
+.shell { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+.eyebrow {
+	color: var(--green);
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	margin: 0 0 1em;
+	text-transform: uppercase;
+}
+
+.hero {
+	background: linear-gradient(120deg, #f8fbfa, #eef4f1 60%, #dfeae5);
+	border-bottom: 1px solid var(--line);
+	padding: 1.5rem 0 5rem;
+}
+
+.site-nav {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: clamp(3rem, 8vh, 6rem);
+}
+
+.brand {
+	align-items: center;
+	color: var(--ink);
+	display: inline-flex;
+	font-size: 1.3rem;
+	font-weight: 600;
+	gap: 0.6rem;
+	text-decoration: none;
+}
+
+.brand img { height: 42px; width: auto; }
+
+.nav-links { display: flex; gap: 1.4rem; }
+.nav-links a { color: var(--ink); font-weight: 400; text-decoration: none; }
+
+.lead { color: var(--ink); font-size: 1.2rem; max-width: 46rem; }
+.byline a { color: var(--green); font-weight: 600; }
+
+.contact { padding: 4.5rem 0; }
+
+.button {
+	background: var(--green);
+	border-radius: 4px;
+	color: #fff;
+	display: inline-block;
+	font-weight: 600;
+	padding: 0.8rem 1.5rem;
+	text-decoration: none;
+}
+.button:hover { background: var(--green-dark); color: #fff; }
+
+.site-footer {
+	background: var(--footer);
+	color: rgba(255, 255, 255, 0.62);
+	font-size: 0.82rem;
+	padding: 2.1rem 0;
+}
+.site-footer .shell { display: flex; flex-wrap: wrap; gap: 1.2rem; }
+.site-footer a { text-decoration: none; }
+.site-footer a:hover { color: #fff; }

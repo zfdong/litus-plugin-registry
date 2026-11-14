@@ -83,7 +83,9 @@ broken (see `blocklist.json`).
 - `scripts/build.py`: checks the entries and builds the published registry.
 - `scripts/smoke.py`: installs plugins with a real `litus-cli`, as a user would.
 - `.github/workflows/check.yml`: checks every pull request's entries (no secrets, read-only).
-- `.github/workflows/deploy.yml`: publishes `main` to litus.tellusai.com.
+- `site/`: the Litus landing page at https://litus.tellusai.com/.
+- `.github/workflows/deploy.yml`: publishes `main` to litus.tellusai.com, with GitHub Pages
+  from the `gh-pages` branch.
 
 Maintainers: see [MAINTAINERS.md](MAINTAINERS.md).
 

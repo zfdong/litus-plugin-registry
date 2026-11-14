@@ -4,7 +4,7 @@
     python scripts/build.py --check                     # check every entry (downloads packages)
     python scripts/build.py --check hello-litus         # check only these entries
     python scripts/build.py --check --changed origin/main   # check the entries a branch changes
-    python scripts/build.py --site ../tellus/litus      # build into the site (litus.tellusai.com)
+    python scripts/build.py --site pages                # build into a gh-pages checkout
 
 Each `registry/<id>.json` names a package by its address and SHA-256. The package is downloaded
 and checked against that hash, and the published entry is made from the package's own
@@ -40,7 +40,11 @@ PLUGINS_DIR = Path("api/plugins")  # inside the site
 LIVE_PACKAGES = "https://litus.tellusai.com/api/plugins/packages/"
 
 MAX_REGISTRY_BYTES = 64 * 1024 * 1024  # what Litus downloads at most
-MAX_PACKAGE_BYTES = 64 * 1024 * 1024   # what Litus installs at most
+# What Litus installs at most. It is also under the host's limits: GitHub refuses files over
+# 100 MB, and GitHub Pages publishes at most 1 GB in all (MAX_SITE_BYTES).
+MAX_PACKAGE_BYTES = 64 * 1024 * 1024
+MAX_SITE_BYTES = 1000 * 1000 * 1000
+WARN_SITE_BYTES = 800 * 1000 * 1000
 MAX_MANIFEST_BYTES = 1024 * 1024
 MAX_BLOCKLIST_BYTES = 4 * 1024 * 1024
 
@@ -366,6 +370,9 @@ def prepare(source: dict, existing: Path | None, live: str | None) -> tuple[dict
                 break
     if data is None:
         data = fetch_package(source["source"])
+    if len(data) > MAX_PACKAGE_BYTES:
+        raise BuildError(f"the package is {len(data) / 1e6:.1f} MB; Litus installs packages of "
+                         f"at most {MAX_PACKAGE_BYTES // (1024 * 1024)} MB")
     manifest = read_manifest(data)
     if manifest.get("id") != pid:
         raise BuildError(f"the package's plugin.json says id {manifest.get('id')!r}, "
@@ -386,6 +393,14 @@ def prepare(source: dict, existing: Path | None, live: str | None) -> tuple[dict
         raise BuildError(f"{name} is already published with different contents. Published "
                          "packages never change: give the new package a new version.")
     return entry, data
+
+
+def site_bytes(site: Path) -> int:
+    """The size of the files in `site`, outside .git."""
+    if not site.is_dir():
+        return 0
+    return sum(p.stat().st_size for p in site.rglob("*")
+               if p.is_file() and ".git" not in p.relative_to(site).parts)
 
 
 def run(ids: list[str] | None, site: Path | None, live: str | None) -> list[dict]:
@@ -411,6 +426,17 @@ def run(ids: list[str] | None, site: Path | None, live: str | None) -> list[dict
     out = serialize(registry)
     if len(out) > MAX_REGISTRY_BYTES:
         errors.append(f"registry.json would be {len(out)} bytes; Litus reads at most 64 MB")
+    if site is not None:
+        # Published packages stay in the site for good, so it only grows.
+        total = site_bytes(site) + len(out) + sum(
+            len(d) for rel, d in packages.items() if not (plugins_dir / rel).exists())
+        if total > MAX_SITE_BYTES:
+            errors.append(f"the site would be {total / 1e6:.0f} MB; GitHub Pages publishes at "
+                          f"most {MAX_SITE_BYTES / 1e6:.0f} MB. Move packages elsewhere "
+                          "(MAINTAINERS.md, 'When the site gets large').")
+        elif total > WARN_SITE_BYTES:
+            print(f"WARNING: the site is {total / 1e6:.0f} MB of GitHub Pages' "
+                  f"{MAX_SITE_BYTES / 1e6:.0f} MB.", file=sys.stderr)
     if errors:
         raise BuildError("\n  ".join(["the registry doesn't check out:"] + errors))
 
