@@ -1,0 +1,18 @@
+{
+  "plugins": [
+    {
+      "id": "hello-litus",
+      "name": "Hello Litus",
+      "version": "0.1.0",
+      "description": "An example plugin: a command that counts the map's layers and a tool that draws boxes around features.",
+      "author": "Tellus Consulting LLC",
+      "homepage": "https://litus.tellusai.com/",
+      "license": "MIT",
+      "permissions": [],
+      "minLitusVersion": "0.1.0",
+      "package": "packages/hello-litus/hello-litus-0.1.0.litusplugin",
+      "sha256": "7c0d530351bcf5f27cea520ffcf0f9c0c2887c77905a4e771b30f8d2b580b57c",
+      "size": 41974
+    }
+  ]
+}
