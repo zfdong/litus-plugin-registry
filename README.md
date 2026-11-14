@@ -86,3 +86,8 @@ broken (see `blocklist.json`).
 - `.github/workflows/deploy.yml`: publishes `main` to litus.tellusai.com.
 
 Maintainers: see [MAINTAINERS.md](MAINTAINERS.md).
+
+## Licence
+
+This repository (the entries and the scripts) is MIT licensed: see [LICENSE](LICENSE). Each
+plugin has its own licence, named in its `plugin.json`.
