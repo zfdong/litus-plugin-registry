@@ -21,14 +21,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Check out the website
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: zfdong/tellus
           token: ${{ secrets.TELLUS_DEPLOY_TOKEN }}
